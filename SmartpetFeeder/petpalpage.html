@@ -242,6 +242,60 @@
       color: var(--muted);
     }
 
+    .demo-gallery {
+      position: relative;
+    }
+
+    .demo-track {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .demo-card {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      background: #fff;
+      box-shadow: 0 14px 34px rgba(54, 38, 28, 0.08);
+    }
+
+    .demo-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .demo-control {
+      display: none;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--text);
+      box-shadow: 0 10px 24px rgba(54, 38, 28, 0.16);
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .demo-control:hover,
+    .demo-control:focus {
+      outline: none;
+      background: #fff;
+    }
+
+    .demo-control.prev {
+      left: 10px;
+    }
+
+    .demo-control.next {
+      right: 10px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -337,6 +391,36 @@
 
       .figure iframe {
         aspect-ratio: 16 / 10;
+      }
+
+      .demo-gallery {
+        overflow: hidden;
+        border-radius: 16px;
+      }
+
+      .demo-track {
+        display: flex;
+        gap: 0;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .demo-track::-webkit-scrollbar {
+        display: none;
+      }
+
+      .demo-card {
+        flex: 0 0 100%;
+        scroll-snap-align: start;
+        border-radius: 0;
+      }
+
+      .demo-control {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
       }
 
       table {
@@ -454,16 +538,52 @@
 
             <div class="subsection">
               <h2 class="section-heading">Pet Binding</h2>
+              <div class="demo-gallery" data-carousel aria-label="Pet Binding demo images">
+                <button class="demo-control prev" type="button" aria-label="Previous image">‹</button>
+                <div class="demo-track">
+                  <figure class="demo-card">
+                    <img src="pagedemo/addpet1.png" alt="Pet Binding demo image 1" />
+                  </figure>
+                  <figure class="demo-card">
+                    <img src="pagedemo/addpet2.png" alt="Pet Binding demo image 2" />
+                  </figure>
+                </div>
+                <button class="demo-control next" type="button" aria-label="Next image">›</button>
+              </div>
               <p class="text-block">Pet Binding measures the weight of the pet using a load cell and allocates the pet with its feeding container. The user clicks start/stop weight detection to enable the load cell. Once enabled, the weight appears in the weight column and keeps updating until stopped or time expired.</p>
             </div>
 
             <div class="subsection">
               <h2 class="section-heading">Scheduled Feeding</h2>
+              <div class="demo-gallery" data-carousel aria-label="Scheduled Feeding demo images">
+                <button class="demo-control prev" type="button" aria-label="Previous image">‹</button>
+                <div class="demo-track">
+                  <figure class="demo-card">
+                    <img src="pagedemo/schedule1.png" alt="Scheduled feeding demo image 1" />
+                  </figure>
+                  <figure class="demo-card">
+                    <img src="pagedemo/schedule2.png" alt="Scheduled feeding demo image 2" />
+                  </figure>
+                </div>
+                <button class="demo-control next" type="button" aria-label="Next image">›</button>
+              </div>
               <p class="text-block">When a scheduled feeding time is reached, the backend scheduler publishes a standardized JSON instruction to either motor1 or motor2, including container ID, food amount, pet name, feeding type, and timestamp. The system follows a controlled workflow: weight sensor is enabled first, a valid reading is obtained, and only then is the motor instructed to dispense food.</p>
             </div>
 
             <div class="subsection">
               <h2 class="section-heading">Manual Feeding</h2>
+              <div class="demo-gallery" data-carousel aria-label="Manual Feeding demo images">
+                <button class="demo-control prev" type="button" aria-label="Previous image">‹</button>
+                <div class="demo-track">
+                  <figure class="demo-card">
+                    <img src="pagedemo/manualfeed1.png" alt="Manual feeding demo image 1" />
+                  </figure>
+                  <figure class="demo-card">
+                    <img src="pagedemo/manualfeed2.png" alt="Manual feeding demo image 2" />
+                  </figure>
+                </div>
+                <button class="demo-control next" type="button" aria-label="Next image">›</button>
+              </div>
               <p class="text-block">Users can immediately dispense food via the web dashboard by selecting "Feed Now" with the desired container and portion size. The backend generates a JSON command with <strong>feeding_type: "manual"</strong> and publishes it to the appropriate MQTT motor topic. The motor controller bypasses weight-sensor checks and activates the stepper motor to dispense the portion.</p>
             </div>
 
@@ -631,6 +751,24 @@
         window.addEventListener('resize', requestUpdate);
         window.addEventListener('hashchange', requestUpdate);
       }
+
+      const carousels = Array.from(document.querySelectorAll('[data-carousel]'));
+
+      carousels.forEach((carousel) => {
+        const track = carousel.querySelector('.demo-track');
+        const prevButton = carousel.querySelector('.demo-control.prev');
+        const nextButton = carousel.querySelector('.demo-control.next');
+        const slides = Array.from(track.querySelectorAll('.demo-card'));
+
+        const scrollToSlide = (direction) => {
+          const slideWidth = slides[0].getBoundingClientRect().width;
+          const nextIndex = Math.max(0, Math.min(slides.length - 1, Math.round(track.scrollLeft / slideWidth) + direction));
+          track.scrollTo({ left: nextIndex * slideWidth, behavior: 'smooth' });
+        };
+
+        prevButton.addEventListener('click', () => scrollToSlide(-1));
+        nextButton.addEventListener('click', () => scrollToSlide(1));
+      });
     </script>
 </body>
 </html>
