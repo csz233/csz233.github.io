@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PetPal Smart Pet Feeder — IoT-enabled automatic pet feeder for multi-pet households.">
+  <title>Petpal — Smart Pet Feeder</title>
+  <style>
+    :root {
+      color-scheme: light;
+      box-sizing: border-box;
+      --bg: #f6f3ed;
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-border: rgba(25, 25, 25, 0.08);
+      --text: #1c1c1c;
+      --muted: #66615a;
+      --accent: #7a4b2a;
+      --accent-soft: rgba(122, 75, 42, 0.12);
+      --shadow: 0 20px 50px rgba(54, 38, 28, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 24px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(122, 75, 42, 0.08), transparent 30%),
+        linear-gradient(180deg, #faf7f2 0%, #f4efe8 100%);
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(28, 28, 28, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(28, 28, 28, 0.025) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.16), transparent 70%);
+    }
+
+    .page {
+      position: relative;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 48px 24px 64px 280px;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: max(24px, calc((100vw - 1440px) / 2 + 24px));
+      top: 40px;
+      width: 220px;
+      max-height: calc(100vh - 80px);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow: auto;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .brand-subtitle {
+      margin-top: 4px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(28, 28, 28, 0.08);
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .home-link:hover,
+    .home-link:focus {
+      transform: translateY(-1px);
+      background: rgba(122, 75, 42, 0.18);
+      outline: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      padding: 8px 10px;
+      border-radius: 12px;
+      transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav-links a.active {
+      color: var(--text);
+      background: rgba(128, 128, 128, 0.14);
+      box-shadow: inset 4px 0 0 rgba(120, 120, 120, 0.7), 0 6px 18px rgba(60, 60, 60, 0.08);
+      transform: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus {
+      color: var(--text);
+      background: var(--accent-soft);
+      outline: none;
+      transform: translateX(2px);
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: min(900px, 100%);
+    }
+
+    .section {
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow);
+      overflow: clip;
+    }
+
+    .section summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 20px 24px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(250, 246, 240, 0.92));
+      border-bottom: 1px solid rgba(28, 28, 28, 0.07);
+    }
+
+    .section summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .section summary::after {
+      content: '+';
+      float: right;
+      color: var(--accent);
+      font-weight: 400;
+    }
+
+    .section[open] summary::after {
+      content: '−';
+    }
+
+    .section-body {
+      padding: 22px 24px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .subsection {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-heading {
+      font-size: 1.02rem;
+      color: var(--accent);
+      letter-spacing: 0.01em;
+    }
+
+    .text-block {
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .figure {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      box-shadow: 0 14px 34px rgba(54, 38, 28, 0.08);
+      background: #fff;
+    }
+
+    .figure iframe {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 16px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      box-shadow: 0 14px 34px rgba(54, 38, 28, 0.08);
+      background: #fff;
+    }
+
+    .figure figcaption {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+
+    th {
+      background: rgba(122, 75, 42, 0.08);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .bullet-list {
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      line-height: 1.7;
+    }
+
+    .footer {
+      width: min(900px, 100%);
+      margin-top: 18px;
+      padding: 12px 6px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 24px 16px 56px;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        max-height: none;
+        margin-bottom: 18px;
+      }
+
+      .brand-title {
+        font-size: 1.35rem;
+      }
+
+      .brand-subtitle {
+        font-size: 0.82rem;
+      }
+
+      .nav-links {
+        gap: 6px;
+      }
+
+      .nav-links a {
+        font-size: 0.9rem;
+        padding: 7px 9px;
+      }
+
+      .nav-links a.active {
+        color: var(--muted);
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .section summary {
+        padding: 16px 18px;
+        font-size: 1.02rem;
+      }
+
+      .section-body {
+        padding: 18px 18px 20px;
+        gap: 14px;
+      }
+
+      .text-block {
+        font-size: 0.94rem;
+        line-height: 1.7;
+      }
+
+      .figure iframe {
+        aspect-ratio: 16 / 10;
+      }
+
+      table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      th,
+      td {
+        min-width: 140px;
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
+
+      .stack,
+      .footer {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <div class="brand">
+        <div>
+          <div class="brand-title">Petpal</div>
+          <div class="brand-subtitle">Smart Pet Feeder</div>
+        </div>
+      </div>
+      <a class="home-link" href="../index.html">Back to Home</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#motivation">Motivation</a>
+        <a href="#project-description">Project Description</a>
+        <a href="#technical-breakdown">Technical Breakdown</a>
+        <a href="#features">Features</a>
+        <a href="#product-overview">Product Overview</a>
+        <a href="#system-evaluation">System Evaluation</a>
+        <a href="#conclusion">Conclusion</a>
+      </nav>
+    </aside>
+
+
+    <main class="stack">
+
+      <section class="section" id="motivation">
+        <details open>
+          <summary>Motivation</summary>
+          <div class="section-body">
+            <p class="text-block">In multi-pet households, individualized feeding is a persistent challenge. Different pets often require distinct diets due to factors such as weight management, allergies, or specific medical conditions. However, because many owners are away from home for most of the day, food is commonly prepared in advance and left for free access. Under this arrangement, the more dominant or opportunistic pet may consume food intended for another, leading to improper nutrition and potential health risks.</p>
+            <p class="text-block">Although modern automatic feeders provide timed and portion-controlled dispensing, they generally lack the capability to identify which animal is accessing the food. As a result, existing solutions cannot ensure that each pet receives the correct type of food, making them insufficient for households with pets that have diverse dietary needs. These limitations create a clear need for a feeding system that can differentiate between animals and dispense appropriate food accordingly.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="project-description">
+        <details open>
+          <summary>Project Description</summary>
+          <div class="section-body">
+            <p class="text-block">An IoT-enabled smart automatic pet feeder designed for multi-pet households, capable of dispensing multiple types of food while preventing cross-feeding. The system uses weight sensors to distinguish between individual pets so that each animal receives its designated food type. It provides real-time feedback on a 16×2 LCD display—such as upcoming feeding countdowns, dispensing status, and alerts—and supports remote monitoring and control through a web-based dashboard.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="technical-breakdown">
+        <details open>
+          <summary>Technical Breakdown</summary>
+          <div class="section-body">
+
+            <div class="subsection">
+              <h2 class="section-heading">System Design Diagram</h2>
+              <figure class="figure">
+                <img src="High-level%20Design%20Diagram.jpg" alt="High-level Design Diagram" />
+                <figcaption>Figure 1. High-level Design Diagram</figcaption>
+              </figure>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Software Components</h2>
+              <p class="text-block">The system is built using a modular architecture that separates the frontend, backend, and infrastructure layers. The frontend consists of a React-based web dashboard for pet management. The backend is powered by a Node.js API with REST endpoints for full CRUD operations, while MQTT enables real-time communication with hardware devices. Persistent data is stored in a PostgreSQL database, and the entire stack is deployed using Docker Compose for consistent, containerized deployment.</p>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Hardware Components</h2>
+              <table>
+                <thead>
+                  <tr><th>Component</th><th>Function</th><th>Purposes</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>ESP8266 Microcontroller</td><td>Main controller</td><td>Reads sensors, controls motors, updates LCD, communicates via MQTT</td></tr>
+                  <tr><td>16×2 LCD Display</td><td>Visual feedback</td><td>Shows pet name, feeding status, timestamps</td></tr>
+                  <tr><td>Weight Sensor (load cell + HX711)</td><td>Pet identification</td><td>Detects and distinguishes pets by weight</td></tr>
+                  <tr><td>Stepper Motor (×2)</td><td>Food dispensing</td><td>Precise food portion control per container</td></tr>
+                  <tr><td>3D printed feeding shaft &amp; case</td><td>Food dispensing</td><td>PETG 3D printing material for direct contact with food, ensuring structural strength and food safety.</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">MQTT Service</h2>
+              <p class="text-block">MQTT serves as the communication backbone of the system, enabling efficient, low-latency interaction between the backend and hardware. Key topics include <strong>motor1/motor2</strong> for dispensing, <strong>weight_sensor</strong> for continuous weight data, <strong>weight_enable</strong> to toggle the sensing module, and <strong>lcd_display</strong> for screen messages.</p>
+              <p class="text-block">Communication is bidirectional—the backend issues commands and the ESP8266 transmits sensor data back. All message exchange runs through a Mosquitto MQTT broker deployed via Docker.</p>
+            </div>
+
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="features">
+        <details open>
+          <summary>Features</summary>
+          <div class="section-body">
+
+            <div class="subsection">
+              <h2 class="section-heading">Pet Binding</h2>
+              <p class="text-block">Pet Binding measures the weight of the pet using a load cell and allocates the pet with its feeding container. The user clicks start/stop weight detection to enable the load cell. Once enabled, the weight appears in the weight column and keeps updating until stopped or time expired.</p>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Scheduled Feeding</h2>
+              <p class="text-block">When a scheduled feeding time is reached, the backend scheduler publishes a standardized JSON instruction to either motor1 or motor2, including container ID, food amount, pet name, feeding type, and timestamp. The system follows a controlled workflow: weight sensor is enabled first, a valid reading is obtained, and only then is the motor instructed to dispense food.</p>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Manual Feeding</h2>
+              <p class="text-block">Users can immediately dispense food via the web dashboard by selecting "Feed Now" with the desired container and portion size. The backend generates a JSON command with <strong>feeding_type: "manual"</strong> and publishes it to the appropriate MQTT motor topic. The motor controller bypasses weight-sensor checks and activates the stepper motor to dispense the portion.</p>
+            </div>
+
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="product-overview">
+        <details open>
+          <summary>Product Overview</summary>
+          <div class="section-body">
+            <div class="image-stack">
+              <figure class="figure">
+                <img src="3D%20Model%20of%20the%20feeding%20device.png" alt="3D Model of the feeding device" style="width: 100%; height: auto;"/>
+                <figcaption>Figure 2. 3D Model of the feeding device</figcaption>
+              </figure>
+              <p class="text-block">The original prototype was designed using a CAD tool. The feeding shaft and case were 3D printed in Myhal.</p>
+              <figure class="figure">
+                <img src="Final%20product%20of%20the%20pet%20feeding%20device.jpg" alt="Final product of the pet feeding device" />
+                <figcaption>Figure 3. Final product of the pet feeding device</figcaption>
+              </figure>
+              <p class="text-block">In the final prototype, cardboard was used as the main frame to mount the LCD screen, motor, and feed axis. Wooden structures provided the base and a rigid surface for weight measurement.</p>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="system-evaluation">
+        <details open>
+          <summary>System Evaluation</summary>
+          <div class="section-body">
+
+            <div class="subsection">
+              <h2 class="section-heading">Experiments</h2>
+              <p class="text-block">A demo video systematically tests all main features. Test scenarios verify: a cat arriving before schedule triggers no dispensing; when two cats share the same feeding time, only the correct pet's container dispenses based on weight identification. The feeder simultaneously respects schedules and differentiates between pets.</p>
+              <figure class="figure">
+                <iframe
+                  src="https://drive.google.com/file/d/1prb6ZcrkTSf08SyNJM2OAkDsWdsol3ka/preview"
+                  title="Petpal demo video"
+                  allow="autoplay"
+                  allowfullscreen>
+                </iframe>
+                <figcaption>Demo video. System experiments and feeding behavior validation.</figcaption>
+              </figure>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Overall Performance</h2>
+              <p class="text-block">All components functioned normally during testing. The only issue was that gaps in the 3D printed structure were somewhat large, and small cat food caused jamming in the rotating shaft. Larger ingredients were used for the demonstration. The design successfully solves cross-feeding problems in real-life multi-pet households.</p>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">MQTT Communication</h2>
+              <ul class="bullet-list">
+                <li><strong>Low latency:</strong> Weight sensor data publishes every 500ms with minimal delay</li>
+                <li><strong>Topic-based routing:</strong> Separate topics provide clear message isolation and prevent device interference</li>
+                <li><strong>Easy debugging:</strong> MQTT console allows real-time monitoring of all system communications</li>
+              </ul>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Containerization with Docker</h2>
+              <p class="text-block">The system is containerized using Docker Compose, providing a consistent environment across development and production. All services (frontend, backend, database, MQTT broker) can be managed independently, improving portability and simplifying maintenance.</p>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Hardware Reliability</h2>
+              <ul class="bullet-list">
+                <li><strong>Weight detection accuracy:</strong> ±0.1kg tolerance, sufficient for pet identification</li>
+                <li><strong>Motor control precision:</strong> Stepper motors (28BYJ-48) deliver accurate portions; upgradeable to stronger models for higher torque</li>
+                <li><strong>ESP8266 stability:</strong> Maintains stable WiFi and MQTT connections throughout extended testing</li>
+                <li><strong>LCD feedback:</strong> Real-time status display without requiring web access</li>
+              </ul>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Database Performance</h2>
+              <p class="text-block">PostgreSQL handled all CRUD operations efficiently, with cron-based schedule checks every minute, reliable feeding log storage, and data integrity enforced through foreign key constraints.</p>
+            </div>
+
+            <div class="subsection">
+              <h2 class="section-heading">Areas for Improvement</h2>
+              <ul class="bullet-list">
+                <li><strong>3D printed structure:</strong> Redesign with smaller gaps to prevent food jamming</li>
+                <li><strong>Network dependency:</strong> Add offline mode for critical feeding schedules</li>
+                <li><strong>Pet Weight Gain Function:</strong> Adapt to weight gain curves of different breeds to avoid identification errors from natural growth</li>
+              </ul>
+            </div>
+
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="conclusion">
+        <details open>
+          <summary>Conclusion</summary>
+          <div class="section-body">
+            <p class="text-block">The system successfully demonstrates a scalable, IoT-based solution for multi-pet feeding automation. The combination of MQTT for device communication, Docker for service orchestration, and web-based control provides a robust and user-friendly platform that addresses real-world challenges in pet care management.</p>
+          </div>
+        </details>
+      </section>
+
+    </main>
+
+    <footer class="footer">
+      December 2025, Petpal project 
+    </footer>
+  </div>
+    <script>
+      const sectionIds = [
+        'motivation',
+        'project-description',
+        'technical-breakdown',
+        'features',
+        'product-overview',
+        'system-evaluation',
+        'conclusion',
+      ];
+
+      const isMobile = window.matchMedia('(max-width: 720px)').matches;
+
+      const sections = sectionIds
+        .map((id) => document.getElementById(id))
+        .filter(Boolean);
+
+      const navLinks = new Map(
+        Array.from(document.querySelectorAll('.nav-links a[href^="#"]')).map((link) => [link.getAttribute('href').slice(1), link])
+      );
+
+      const setActiveLink = (sectionId) => {
+        navLinks.forEach((link, id) => link.classList.toggle('active', id === sectionId));
+      };
+
+      if (!isMobile && sections.length) {
+        const updateActiveSection = () => {
+          const anchorLine = window.scrollY + Math.max(140, window.innerHeight * 0.22);
+          let currentId = sections[0].id;
+
+          for (const section of sections) {
+            if (section.offsetTop <= anchorLine) {
+              currentId = section.id;
+            } else {
+              break;
+            }
+          }
+
+          setActiveLink(currentId);
+        };
+
+        let ticking = false;
+        const requestUpdate = () => {
+          if (ticking) {
+            return;
+          }
+
+          ticking = true;
+          window.requestAnimationFrame(() => {
+            updateActiveSection();
+            ticking = false;
+          });
+        };
+
+        updateActiveSection();
+        window.addEventListener('scroll', requestUpdate, { passive: true });
+        window.addEventListener('resize', requestUpdate);
+        window.addEventListener('hashchange', requestUpdate);
+      }
+    </script>
+</body>
+</html>
