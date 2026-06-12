@@ -146,6 +146,38 @@
       color: var(--accent);
     }
 
+    .bullets {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .bullets li {
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .bullets li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    .section-header {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .section-note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
     .text {
       font-size: 0.98rem;
       line-height: 1.8;
@@ -206,6 +238,14 @@
       font-size: 0.95rem;
     }
 
+    .project-meta {
+      margin-top: 10px;
+      font-size: 0.88rem;
+      color: var(--accent);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
     .footer {
       padding: 18px 28px 26px;
       color: var(--muted);
@@ -242,8 +282,8 @@
   <main class="page">
     <section class="card hero" aria-labelledby="home-title">
       <div class="eyebrow">Personal Portfolio</div>
-      <h1 id="home-title">Your Name Here</h1>
-      <p class="subtitle">Placeholder personal homepage for a recruiter-friendly portfolio. Replace this summary with your own role, focus area, and a short one-line introduction.</p>
+      <h1 id="home-title">Yilin Wang</h1>
+      <p class="subtitle">MEng ECE student at the University of Toronto with hands-on experience in IC design, mixed-signal circuits, embedded systems, and full-stack IoT project development.</p>
       <div class="actions">
         <a class="button primary" href="#projects">View Projects</a>
         <a class="button secondary" href="SmartpetFeeder/petpalpage.html">Open Petpal Project</a>
@@ -252,41 +292,77 @@
 
     <div class="stack">
       <section class="card section" aria-labelledby="contact-title">
-        <h2 id="contact-title">Contact</h2>
+        <div class="section-header">
+          <h2 id="contact-title">Contact</h2>
+        </div>
         <ul class="meta-list">
-          <li class="meta-item"><span class="label">Email</span>your.email@example.com</li>
-          <li class="meta-item"><span class="label">Phone</span>+1 (000) 000-0000</li>
-          <li class="meta-item"><span class="label">Location</span>City, Country</li>
-          <li class="meta-item"><span class="label">LinkedIn</span>linkedin.com/in/your-name</li>
+          <li class="meta-item"><span class="label">Primary Email</span>w2922752679@gmail.com</li>
+          <li class="meta-item"><span class="label">University Email</span>ilynn.wang@mail.utoronto.ca</li>
+          <li class="meta-item"><span class="label">Phone</span>(647) 354-4666</li>
+          <li class="meta-item"><span class="label">Location</span>Scarborough, Ontario</li>
         </ul>
       </section>
 
       <section class="card section" aria-labelledby="education-title">
-        <h2 id="education-title">Education</h2>
-        <p class="text">University Name, Degree Program, Graduation Year</p>
-        <p class="text">Relevant coursework, awards, or academic focus can be placed here as placeholder text.</p>
+        <div class="section-header">
+          <h2 id="education-title">Education</h2>
+          <p class="section-note">Academic background and current program details.</p>
+        </div>
+        <ul class="bullets">
+          <li><strong>Master of Engineering, Electrical & Computer Engineering</strong> - University of Toronto, Expected November 2026</li>
+          <li><strong>Bachelor of Electrical Engineering</strong> - Completed 2024</li>
+        </ul>
       </section>
 
       <section class="card section" id="projects" aria-labelledby="projects-title">
-        <h2 id="projects-title">Projects</h2>
+        <div class="section-header">
+          <h2 id="projects-title">Projects</h2>
+          <p class="section-note">Selected work across IC design, mixed-signal circuits, embedded systems, FPGA, and full-stack IoT.</p>
+        </div>
         <a class="project-link" href="SmartpetFeeder/petpalpage.html">
           <div class="project-title">Petpal Smart Pet Feeder</div>
           <div class="project-desc">IoT-enabled automatic pet feeder with weight-based pet identification, MQTT communication, and a web dashboard. Click to open the detailed project page and return back here from the sidebar.</div>
         </a>
-        <div class="project-link" aria-label="Project placeholder">
-          <div class="project-title">Project Placeholder</div>
-          <div class="project-desc">A second project slot for future work. Replace this with another case study, internship project, or research project when ready.</div>
+        <div class="project-link" aria-label="Project 112 Gb/s SBD Transceiver">
+          <div class="project-title">112 Gb/s SBD Transceiver - ISSCC 2026 Reproduction</div>
+          <div class="project-desc">2026/01 - 2026/04</div>
+        </div>
+        <div class="project-link" aria-label="Project High-Speed SerDes IC Design">
+          <div class="project-title">High-Speed SerDes IC Design - CTLE & FFE</div>
+          <div class="project-desc">2026/01 - 2026/04</div>
+        </div>
+        <div class="project-link" aria-label="Project Bioimpedance Measurement IC">
+          <div class="project-title">Low-Power High-Accuracy Bioimpedance Measurement IC</div>
+          <div class="project-desc">2025/09 - 2025/12</div>
+        </div>
+        <div class="project-link" aria-label="Project FPGA Object Recognition">
+          <div class="project-title">FPGA-Based Object Recognition</div>
+          <div class="project-desc">2025/01 - 2025/04</div>
+        </div>
+        <div class="project-link" aria-label="Project Audio Amplifier Design">
+          <div class="project-title">Audio Amplifier Design using TDA2030A</div>
+          <div class="project-desc">2024/08 - 2024/12</div>
         </div>
       </section>
 
       <section class="card section" aria-labelledby="about-title">
-        <h2 id="about-title">About</h2>
-        <p class="text">Short placeholder bio can go here. Keep it concise, specific, and focused on the type of roles you want to apply for.</p>
+        <div class="section-header">
+          <h2 id="about-title">Summary of Qualifications</h2>
+          <p class="section-note">Core strengths and project experience.</p>
+        </div>
+        <ul class="bullets">
+          <li>Hands-on Cadence Virtuoso IC design experience across analog, mixed-signal, and high-speed SerDes circuits.</li>
+          <li>Experienced in Verilog/SystemVerilog programming, mixed-signal circuit design, and PCB layout.</li>
+          <li>Skilled in prototyping, debugging, and troubleshooting electrical systems to ensure performance and safety standards.</li>
+          <li>Hands-on experience with embedded systems (STM32, ESP8266), FPGA platforms, and analog/digital circuit design.</li>
+          <li>Full-stack IoT project experience including hardware integration, firmware, and cloud/web interfaces.</li>
+          <li>Strong problem-solving abilities with attention to detail, excellent communication, and teamwork skills.</li>
+        </ul>
       </section>
     </div>
 
     <footer class="card footer">
-      Placeholder personal homepage for Petpal.
+      Petpal project featured as a portfolio piece on the homepage.
     </footer>
   </main>
 </body>
