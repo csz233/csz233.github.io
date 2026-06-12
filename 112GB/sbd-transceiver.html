@@ -1,0 +1,880 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A 112 Gb/s single-ended simultaneous bi-directional transceiver project.">
+  <title>112 Gb/s SBD Transceiver</title>
+  <style>
+    :root {
+      color-scheme: light;
+      box-sizing: border-box;
+      --bg: #f6f3ed;
+      --panel: rgba(255, 255, 255, 0.82);
+      --panel-border: rgba(25, 25, 25, 0.08);
+      --text: #1c1c1c;
+      --muted: #66615a;
+      --accent: #7a4b2a;
+      --accent-soft: rgba(122, 75, 42, 0.12);
+      --shadow: 0 20px 50px rgba(54, 38, 28, 0.08);
+    }
+
+    *, *::before, *::after {
+      box-sizing: inherit;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 24px;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(122, 75, 42, 0.08), transparent 30%),
+        linear-gradient(180deg, #faf7f2 0%, #f4efe8 100%);
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: linear-gradient(rgba(28, 28, 28, 0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(28, 28, 28, 0.025) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.16), transparent 70%);
+    }
+
+    .page {
+      position: relative;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 48px 24px 64px 280px;
+    }
+
+    .sidebar {
+      position: fixed;
+      left: max(24px, calc((100vw - 1440px) / 2 + 24px));
+      top: 40px;
+      width: 220px;
+      max-height: calc(100vh - 80px);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow: auto;
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text);
+    }
+
+    .brand-subtitle {
+      margin-top: 4px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(28, 28, 28, 0.08);
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.95rem;
+      line-height: 1.45;
+      padding: 8px 10px;
+      border-radius: 12px;
+      transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .nav-links a.active {
+      color: var(--text);
+      background: rgba(128, 128, 128, 0.14);
+      box-shadow: inset 4px 0 0 rgba(120, 120, 120, 0.7), 0 6px 18px rgba(60, 60, 60, 0.08);
+      transform: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus {
+      color: var(--text);
+      background: var(--accent-soft);
+      outline: none;
+      transform: translateX(2px);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .back-link:hover,
+    .back-link:focus {
+      transform: translateY(-1px);
+      background: rgba(122, 75, 42, 0.18);
+      outline: none;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      width: min(900px, 100%);
+    }
+
+    .section {
+      border: 1px solid var(--panel-border);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow);
+      overflow: clip;
+    }
+
+    .section summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 20px 24px;
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(250, 246, 240, 0.92));
+      border-bottom: 1px solid rgba(28, 28, 28, 0.07);
+    }
+
+    .section summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .section summary::after {
+      content: '+';
+      float: right;
+      color: var(--accent);
+      font-weight: 400;
+    }
+
+    .section[open] summary::after {
+      content: '−';
+    }
+
+    .section-body {
+      padding: 22px 24px 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .hero {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .eyebrow {
+      font-size: 0.86rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 2.4vw, 1.95rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      max-width: 100%;
+    }
+
+    .subtitle {
+      font-size: 1.03rem;
+      line-height: 1.75;
+      color: var(--muted);
+      max-width: 70ch;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(122, 75, 42, 0.06);
+      border: 1px solid rgba(28, 28, 28, 0.06);
+    }
+
+    .summary-card .label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .summary-card .value {
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .text-block {
+      font-size: 0.98rem;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .quick-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      box-shadow: 0 10px 24px rgba(54, 38, 28, 0.05);
+    }
+
+    .quick-card .label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .quick-card .value {
+      font-size: 0.96rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+
+    .bullets {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .bullets li {
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .bullets li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .feature-card {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: 0 10px 24px rgba(54, 38, 28, 0.05);
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    .figure-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .media-frame {
+      margin: 0;
+    }
+
+    .media-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 18px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      box-shadow: 0 14px 34px rgba(54, 38, 28, 0.08);
+      background: #fff;
+    }
+
+    .figure-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 240px;
+      border-radius: 18px;
+      border: 1px dashed rgba(122, 75, 42, 0.28);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.75), rgba(122, 75, 42, 0.05));
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .figure-caption {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .metrics-table th,
+    .metrics-table td {
+      padding: 12px 14px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .metrics-table th {
+      background: rgba(122, 75, 42, 0.08);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .result-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      box-shadow: 0 10px 24px rgba(54, 38, 28, 0.05);
+    }
+
+    .result-card .label {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .result-card .value {
+      font-size: 0.96rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .takeaways-list {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .takeaways-list li {
+      padding-left: 16px;
+      position: relative;
+      line-height: 1.7;
+    }
+
+    .takeaways-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    .footer {
+      width: min(900px, 100%);
+      margin-top: 18px;
+      padding: 12px 6px 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+    }
+
+    .mobile-nav {
+      display: none;
+    }
+
+    .mobile-nav summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .mobile-nav summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .mobile-nav summary::after {
+      content: '+';
+      float: right;
+      color: var(--accent);
+    }
+
+    .mobile-nav[open] summary::after {
+      content: '−';
+    }
+
+    .mobile-nav-panel {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(28, 28, 28, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 20px 16px 56px;
+      }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        max-height: none;
+        margin-bottom: 18px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .mobile-nav {
+        display: block;
+      }
+
+      .hero,
+      .section,
+      .footer {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .summary-grid,
+      .quick-grid,
+      .feature-grid,
+      .results-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .subtitle {
+        font-size: 0.96rem;
+      }
+
+      h1 {
+        font-size: clamp(1.45rem, 8vw, 1.9rem);
+        line-height: 1.1;
+      }
+
+      .figure-placeholder {
+        min-height: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-title">112 Gb/s SBD Transceiver</div>
+        <div class="brand-subtitle">High-Speed Die-to-Die Transceiver Design</div>
+      </div>
+      <a class="back-link" href="../index.html">Back to Home</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#intro">Project Intro</a>
+        <a href="#overview">Quick Overview</a>
+        <a href="#why">Why This Project</a>
+        <a href="#built">What I Built</a>
+        <a href="#architecture">System Architecture</a>
+        <a href="#ideas">Key Technical Ideas</a>
+        <a href="#verification">Verification & Results</a>
+        <a href="#results">Key Results</a>
+        <a href="#tradeoffs">Challenges & Tradeoffs</a>
+        <a href="#takeaways">Takeaways</a>
+      </nav>
+      <details class="mobile-nav">
+        <summary>Sections</summary>
+        <div class="mobile-nav-panel">
+          <nav class="nav-links" aria-label="Mobile sections">
+            <a href="#intro">Project Intro</a>
+            <a href="#overview">Quick Overview</a>
+            <a href="#why">Why This Project</a>
+            <a href="#built">What I Built</a>
+            <a href="#architecture">System Architecture</a>
+            <a href="#ideas">Key Technical Ideas</a>
+            <a href="#verification">Verification & Results</a>
+            <a href="#results">Key Results</a>
+            <a href="#tradeoffs">Challenges & Tradeoffs</a>
+            <a href="#takeaways">Takeaways</a>
+          </nav>
+        </div>
+      </details>
+    </aside>
+
+    <main class="stack">
+      <section class="section" id="intro">
+        <details open>
+          <summary>Project Intro</summary>
+          <div class="section-body hero">
+            <h1>112 Gb/s Single-Ended Simultaneous Bi-Directional<br>Transceiver</h1>
+            <p class="subtitle">A high-speed Die-to-Die / SerDes / CMOS IC design project that explored how to push more bandwidth through a single-ended link without losing timing margin or link stability.</p>
+            <p class="text-block">I reproduced and integrated a single-ended simultaneous bi-directional (SBD) transceiver architecture, then verified the key TX, RX, and clocking blocks in simulation. The goal was to understand the architecture-level tradeoff between bandwidth density, complexity, and power. The final simulation flow showed a full-rate reconstructed output, quarter-rate receiver operation, and timing margin consistent with the target condition.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="overview">
+        <details open>
+          <summary>Quick Overview</summary>
+          <div class="section-body">
+            <div class="quick-grid">
+              <div class="quick-card">
+                <span class="label">Process Node</span>
+                <div class="value">16nm CMOS</div>
+              </div>
+              <div class="quick-card">
+                <span class="label">Data Rate</span>
+                <div class="value">112 Gb/s per wire</div>
+              </div>
+              <div class="quick-card">
+                <span class="label">Architecture Type</span>
+                <div class="value">Single-ended SBD, quarter-rate time-interleaved RX</div>
+              </div>
+              <div class="quick-card">
+                <span class="label">Key Result</span>
+                <div class="value">Full-rate reconstructed output verified in simulation</div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="why">
+        <details open>
+          <summary>Why This Project</summary>
+          <div class="section-body">
+            <p class="text-block">AI and HPC chiplets need die-to-die links that offer more bandwidth while keeping edge density high. That creates a hard tradeoff: if the interface gets too complicated, power and implementation cost rise quickly; if it stays too simple, the bandwidth per wire is not enough.</p>
+            <p class="text-block">This project explores the value of single-ended simultaneous bi-directional signaling as one way to improve bandwidth density on short-reach die-to-die channels. In plain terms, it tries to send and receive on the same wire at the same time while still keeping the link usable at very high speed.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="built">
+        <details open>
+          <summary>What I Built</summary>
+          <div class="section-body">
+            <div class="feature-grid">
+              <div class="feature-card">
+                <h3>Overall Architecture</h3>
+                <p>Designed and reproduced the SBD transceiver architecture, including the TX path, RX path, and verification flow.</p>
+              </div>
+              <div class="feature-card">
+                <h3>TX Path</h3>
+                <p>Implemented the N-over-N TX driver and the replica path used for subtraction-based decoupling.</p>
+              </div>
+              <div class="feature-card">
+                <h3>RX Front-End</h3>
+                <p>Built the dynamic equalizer front-end to compensate channel loss and help recover the data stream at the receiver.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Data Recovery</h3>
+                <p>Implemented the SR latch and PRBS generator needed for stable output capture and repeatable simulation input.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Quarter-Rate Verification</h3>
+                <p>Constructed the quarter-rate, time-interleaved verification architecture with phase-shifted clocks and lane recombination.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Verification Flow</h3>
+                <p>Ran transient, AC, eye, and bathtub-style verification to check functionality, timing margin, and channel compensation behavior.</p>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="architecture">
+        <details open>
+          <summary>System Architecture</summary>
+          <div class="section-body">
+            <p class="text-block">The overall system has three main parts: the transmitter, the channel, and the receiver. The transmitter creates the coupled signal and a replica signal. The channel represents the single-ended die-to-die interconnect. The receiver uses a quarter-rate time-interleaved front-end so each lane can run at a lower effective speed while still supporting the full link rate.</p>
+            <div class="figure-stack">
+              <figure class="media-frame">
+                <img class="media-image" src="img/system%20architecture%20figure.png" alt="System architecture figure" />
+                <figcaption class="figure-caption">System architecture overview.</figcaption>
+              </figure>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="ideas">
+        <details open>
+          <summary>Key Technical Ideas</summary>
+          <div class="section-body">
+            <div class="feature-grid">
+              <div class="feature-card">
+                <h3>Simultaneous Bidirectional Signaling</h3>
+                <p>The same wire is used for both transmit and receive. That improves wiring efficiency, but it requires careful separation of the local TX contribution from the incoming signal.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Quarter-Rate Time Interleaving</h3>
+                <p>Using four phase-shifted clock lanes reduces the per-lane operating speed, which makes the receiver easier to stabilize at the target data rate.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Dynamic Equalization</h3>
+                <p>A dynamic equalizer helps recover high-frequency content lost in the channel so the receiver can still make a reliable decision.</p>
+              </div>
+              <div class="feature-card">
+                <h3>Replica-Based Subtraction</h3>
+                <p>A replica path is used to estimate the local TX effect, so the receiver can subtract or decouple the local swing before making a decision.</p>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="verification">
+        <details open>
+          <summary>Verification & Results</summary>
+          <div class="section-body">
+            <p class="text-block">The most important verification result was that the design reconstructed a full-rate output in simulation. I also checked the quarter-rate equalizer behavior directly, then used eye and bathtub analysis to confirm that the timing window was still usable at the target condition.</p>
+              <figure class="media-frame">
+                <img class="media-image" src="img/received%20eye%20diagram.png" alt="Received eye diagram" style="width: 70%; height: auto;"/>
+                <figcaption class="figure-caption">Unprocessed eye diagram.</figcaption>
+              </figure>
+            <div class="figure-stack">
+              <figure class="media-frame">
+                <img class="media-image" src="img/recovered%20signal%20waveform%20and%20bathtub%20curve%20.png" alt="Recovered signal waveform and bathtub curve" />
+                <figcaption class="figure-caption">Recovered signal waveform and bathtub curve.</figcaption>
+              </figure>
+
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="results">
+        <details open>
+          <summary>Key Results</summary>
+          <div class="section-body">
+            <table class="metrics-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Summary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Aggregate data rate</td>
+                  <td>112 Gb/s per wire</td>
+                </tr>
+                <tr>
+                  <td>Baud rate</td>
+                  <td>56 Gbaud overall, with quarter-rate receiver operation per lane</td>
+                </tr>
+                <tr>
+                  <td>BER target / reference</td>
+                  <td>Reported verification focused on very low BER operation, with the bathtub analysis used as the timing-quality check</td>
+                </tr>
+                <tr>
+                  <td>Timing margin</td>
+                  <td>About 0.86 UI at the target verification condition</td>
+                </tr>
+                <tr>
+                  <td>Equalization effect</td>
+                  <td>Dynamic equalization used to compensate channel loss in the receiver front-end</td>
+                </tr>
+                <tr>
+                  <td>Process node</td>
+                  <td>16nm CMOS</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="results-grid">
+              <div class="result-card">
+                <span class="label">Full-rate output</span>
+                <div class="value">Recovered output was reconstructed in simulation and compared against the input data stream.</div>
+              </div>
+              <div class="result-card">
+                <span class="label">Quarter-rate equalizer</span>
+                <div class="value">A lower effective lane rate made the receiver easier to stabilize while keeping the overall link fast.</div>
+              </div>
+              <div class="result-card">
+                <span class="label">Channel compensation</span>
+                <div class="value">The receiver front-end was used to offset channel loss and improve the sampling window.</div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="tradeoffs">
+        <details open>
+          <summary>Challenges & Tradeoffs</summary>
+          <div class="section-body">
+            <p class="text-block">A single equalizer stage was not stable enough at the target speed, so the design moved to a quarter-rate quadrature-clock architecture. That choice increased area and implementation complexity, but it improved stability and timing margin, which was the more important system-level goal.</p>
+            <p class="text-block">This project is a good example of a classic high-speed design tradeoff: more structure and more clocking complexity can be worth it if the result is a receiver that actually works at the required speed.</p>
+          </div>
+        </details>
+      </section>
+
+      <section class="section" id="takeaways">
+        <details open>
+          <summary>Takeaways</summary>
+          <div class="section-body">
+            <ul class="takeaways-list">
+              <li>High-speed mixed-signal architecture thinking: translating a paper-level idea into a working block-level system.</li>
+              <li>Cadence and transistor-level simulation workflow: building and checking TX, RX, and clocking blocks in context.</li>
+              <li>Signal integrity and timing analysis: using eye and bathtub-style checks to judge whether the link is usable.</li>
+              <li>Equalization versus timing tradeoff analysis: understanding when to add complexity to recover margin.</li>
+              <li>System integration across analog and digital blocks: connecting the front-end, memory elements, and serialization flow.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+    </main>
+
+    <footer class="footer">
+      This one is hard T_T.
+    </footer>
+  </div>
+
+  <script>
+    const sectionIds = [
+      'intro',
+      'overview',
+      'why',
+      'built',
+      'architecture',
+      'ideas',
+      'verification',
+      'results',
+      'tradeoffs',
+      'takeaways',
+    ];
+
+    const isMobile = window.matchMedia('(max-width: 720px)').matches;
+    const sections = sectionIds.map((id) => document.getElementById(id)).filter(Boolean);
+    const navLinks = new Map(
+      Array.from(document.querySelectorAll('.nav-links a[href^="#"]')).map((link) => [link.getAttribute('href').slice(1), link])
+    );
+
+    const setActiveLink = (sectionId) => {
+      navLinks.forEach((link, id) => link.classList.toggle('active', id === sectionId));
+    };
+
+    if (!isMobile && sections.length) {
+      const updateActiveSection = () => {
+        const anchorLine = window.scrollY + Math.max(140, window.innerHeight * 0.22);
+        let currentId = sections[0].id;
+
+        for (const section of sections) {
+          if (section.offsetTop <= anchorLine) {
+            currentId = section.id;
+          } else {
+            break;
+          }
+        }
+
+        setActiveLink(currentId);
+      };
+
+      let ticking = false;
+      const requestUpdate = () => {
+        if (ticking) {
+          return;
+        }
+
+        ticking = true;
+        window.requestAnimationFrame(() => {
+          updateActiveSection();
+          ticking = false;
+        });
+      };
+
+      updateActiveSection();
+      window.addEventListener('scroll', requestUpdate, { passive: true });
+      window.addEventListener('resize', requestUpdate);
+      window.addEventListener('hashchange', requestUpdate);
+    }
+  </script>
+</body>
+</html>
